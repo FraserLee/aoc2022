@@ -6,7 +6,7 @@ main = do
     file <- readFile "input.txt"
     let n = 14
     print $ (+) n $ fromJust 
-          $ findIndex (((==) n) . length . nub)
+          $ findIndex ((== n) . length . nub)
           $ map (take n) 
-          $ reverse $ drop (n + 1) $ reverse $ tails file
+          $ tails file
 
