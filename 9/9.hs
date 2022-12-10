@@ -37,7 +37,7 @@ main = do
           $ nub 
           -- iterate finding the next pos-list, treating the prior as the new head.
           $ iterate (\hp -> scanl tp (Pos 0 0) $ hp) 
-                    (scanl (+) (Pos 0 0) steps) 
+                    (scanl (+) (Pos 0 0) steps) -- initial pos-list: headpos
                 !! 9 -- A: 1, B: 9
 
     -- putStrLn $ intercalate "\n" $ map (uncurry showHeadTail) $ zip hps tps
