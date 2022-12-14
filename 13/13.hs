@@ -1,3 +1,4 @@
+#!/usr/bin/env stack
 -- stack script --resolver lts-20.3
 import Data.List
 import Data.Maybe
