@@ -14,19 +14,19 @@ doMonkey :: Monkey -> Int -> [[Int]] -> [[Int]]
 doMonkey Monkey{op, test, passTarget, failTarget} n collection =
     let items = map op (collection !! n)
         (pass, fail) = partition test items
-    in map (\(i, xs) -> case i of
+    in zipWith (\i xs -> case i of
                 i | i == n -> []
                 i | i == passTarget -> xs ++ pass
                 i | i == failTarget -> xs ++ fail
                 _ -> xs
-           ) (zip [0..] collection)
+           ) [0..] collection
 
 parseItems :: String -> [Int]
 parseItems = map read . splitOn ","
 
 parseOp :: Int -> String -> Int -> Int
 parseOp lcmM line = 
-        let ("new":"=":a:op:b:[]) = words line
+        let ["new","=",a,op,b] = words line
         in \x -> let a' = case a of "old" -> x ; _ -> read a
                      b' = case b of "old" -> x ; _ -> read b
                  in (case op of "+" -> a' + b' ; "-" -> a' - b' ; "*" -> a' * b') `mod` lcmM
@@ -43,7 +43,7 @@ main = do
     file <- readFile "input.txt"
 
     -- the important parts of each monkey section
-    let raw = map (map (\x -> (splitOn ": " x) !! 1)) 
+    let raw = map (map (\x -> splitOn ": " x !! 1)) 
              $ splitOn [""]
              $ lines file
 
@@ -63,17 +63,17 @@ main = do
     -- each do its thing in turn.
     let step collection opcount = foldl (\(col, ops) (mon, n) -> 
                 let col' = doMonkey mon n col
-                    ops' = map (\(x, i) -> 
+                    ops' = zipWith (\x i ->
                             if i == n
                             then x + toInteger (length $ col !! n)
                             else x
-                        ) (zip ops [0..])
+                        ) ops [0..]
                 in (col', ops')
             ) (collection, opcount) (zip monkeys [0..]) :: ([[Int]], [Integer])
 
     let initOps = replicate (length collection) 0 :: [Integer]
-    let (_, opcount) = iterate (\(c, o) -> step c o) (collection, initOps) !! 10000
+    let (_, opcount) = iterate (uncurry step) (collection, initOps) !! 10000
 
     -- product of the highest two opcounts
-    print $ foldl (*) 1 $ take 2 $ reverse $ sort opcount
+    print $ product $ take 2 $ reverse $ sort opcount
 
